@@ -34,6 +34,7 @@ LOCAL_MODULE := status_wrapper
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_STATIC_LIBRARIES := nim_status openssl crypto pcre
 LOCAL_SHARED_LIBRARIES := status
+LOCAL_LDLIBS := -llog
 LOCAL_SRC_FILES := status.c 
 include $(BUILD_SHARED_LIBRARY)
 

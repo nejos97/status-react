@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <string.h>
+#include <android/log.h>
 #include "nim_status.h"
 
 static JavaVM* javaVM;
@@ -30,6 +31,7 @@ jstring Java_im_status_NimStatus_openAccounts(JNIEnv* env, jobject thiz, jstring
   const char * result = openAccounts(datadir);
 
   (*env)->ReleaseStringUTFChars(env, jdatadir, datadir);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### openAccounts %s", result);
   return (*env)->NewStringUTF(env, result);
 }
 
@@ -38,6 +40,7 @@ jstring Java_im_status_NimStatus_multiAccountGenerateAndDeriveAddresses(JNIEnv* 
   const char * result = multiAccountGenerateAndDeriveAddresses(paramsJSON);
 
   (*env)->ReleaseStringUTFChars(env, jparamsJSON, paramsJSON);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### multiAccountGenerateAndDeriveAddresses %s", result);
 
   return (*env)->NewStringUTF(env, result);
 }
@@ -168,9 +171,19 @@ jstring Java_im_status_NimStatus_sendTransaction(JNIEnv* env, jobject thiz, jstr
 
 jstring Java_im_status_NimStatus_generateAlias(JNIEnv* env, jobject thiz, jstring jpublicKey) {
 
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "before generatealias 1");
   const char * publicKey = (*env)->GetStringUTFChars(env, jpublicKey, 0);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "before generatealias 2 %s", publicKey);
   const char * result = generateAlias(publicKey);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "after generatealias 1");
+  if (result == NULL) {
+    __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "after generatealias 2 NULL");
+  }
+  else {
+    __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "after generatealias 2 %s", result);
+  }
   (*env)->ReleaseStringUTFChars(env, jpublicKey, publicKey);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "after generatealias 4");
   return (*env)->NewStringUTF(env, result);
 }
 
@@ -179,7 +192,9 @@ jstring Java_im_status_NimStatus_identicon(JNIEnv* env, jobject thiz, jstring jp
     return (*env)->NewStringUTF(env, "");
   }
   const char * publicKey = (*env)->GetStringUTFChars(env, jpublicKey, 0);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### before identicon %s", publicKey);
   const char * result = identicon(publicKey);
+  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### after identicon %s", result);
   (*env)->ReleaseStringUTFChars(env, jpublicKey, publicKey);
   return (*env)->NewStringUTF(env, result);
 }
