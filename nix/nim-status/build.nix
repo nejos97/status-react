@@ -75,17 +75,6 @@ let
   };
 
   nimCShimOverride = ./c_shim.nim;
-  nimOverrides = stdenv.mkDerivation {
-    name = "nimOverrides1";
-    buildInputs = [ pkgs.coreutils ];
-    builder = writeScript "nim-status-override-builder.sh"
-    ''
-      export PATH=${pkgs.coreutils}/bin:$PATH
-      mkdir -p $out/c
-
-      ln -s ${nimCShimOverride} $out/c/nim_status.nim
-    '';
-  };
   compilerFlags = if isAndroid then
     "--sysroot ${ANDROID_NDK_HOME}/sysroot -target ${androidTarget}${api} -fPIC -I ${pcre}/include"
     else if isIOS then
@@ -236,7 +225,7 @@ in stdenv.mkDerivation rec {
     ${createNimbleLink}
 
 
-    cp ${nimOverrides}/c/nim_status.nim src/nim_status/c/nim_status.nim
+    cp ${nimCShimOverride} src/nim_status/c/nim_status.nim
 
 
     patchShebangs .

@@ -31,7 +31,7 @@ jstring Java_im_status_NimStatus_openAccounts(JNIEnv* env, jobject thiz, jstring
   const char * result = openAccounts(datadir);
 
   (*env)->ReleaseStringUTFChars(env, jdatadir, datadir);
-  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### openAccounts %s", result);
+
   return (*env)->NewStringUTF(env, result);
 }
 
@@ -40,7 +40,6 @@ jstring Java_im_status_NimStatus_multiAccountGenerateAndDeriveAddresses(JNIEnv* 
   const char * result = multiAccountGenerateAndDeriveAddresses(paramsJSON);
 
   (*env)->ReleaseStringUTFChars(env, jparamsJSON, paramsJSON);
-  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### multiAccountGenerateAndDeriveAddresses %s", result);
 
   return (*env)->NewStringUTF(env, result);
 }
@@ -131,11 +130,15 @@ static jobject statusModule = NULL;
 void signalCallback(char * msg) {
   JNIEnv *env;
   jint res = (*javaVM)->GetEnv(javaVM, (void**)&env, JNI_VERSION_1_6);
+  int attachedHere = 0;
   if (res != JNI_OK) {
       res = (*javaVM)->AttachCurrentThread(javaVM, &env, NULL);
       if (JNI_OK != res) {
           //LOGE("Failed to AttachCurrentThread, ErrorCode = %d", res);
           return;
+      }
+      else {
+        attachedHere = 1;
       }
   }
 
@@ -146,7 +149,10 @@ void signalCallback(char * msg) {
   (*env)->CallVoidMethod(env, statusModule, handleSignalMethodId, jsonEventStr);
   (*env)->DeleteLocalRef(env, jsonEventStr);
 
-  (*javaVM)->DetachCurrentThread(javaVM);
+  // https://stackoverflow.com/a/51501448/2795837
+  if (attachedHere == 1) {
+    (*javaVM)->DetachCurrentThread(javaVM);
+  }
 }
 
 void Java_im_status_NimStatus_setSignalEventCallback(JNIEnv* env, 
@@ -192,10 +198,11 @@ jstring Java_im_status_NimStatus_identicon(JNIEnv* env, jobject thiz, jstring jp
     return (*env)->NewStringUTF(env, "");
   }
   const char * publicKey = (*env)->GetStringUTFChars(env, jpublicKey, 0);
-  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### before identicon %s", publicKey);
+
   const char * result = identicon(publicKey);
-  __android_log_print(ANDROID_LOG_VERBOSE, "StatusModule", "### after identicon %s", result);
+
   (*env)->ReleaseStringUTFChars(env, jpublicKey, publicKey);
+
   return (*env)->NewStringUTF(env, result);
 }
 
