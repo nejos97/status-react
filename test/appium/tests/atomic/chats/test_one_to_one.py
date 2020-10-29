@@ -736,14 +736,40 @@ class TestMessagesOneToOneChatSingle(SingleDeviceTestCase):
 
     @marks.testrail_id(5403)
     @marks.critical
-    def test_start_chat_with_ens(self):
-        sign_in = SignInView(self.driver)
-        home = sign_in.create_user()
-        profile = home.profile_button.click()
-        profile.switch_network('Mainnet with upstream RPC')
-        chat = home.add_contact(ens_user['ens'])
-        if not chat.element_by_text("@" + ens_user['ens']).is_element_displayed():
+    def test_start_chat_with_ens_mention_in_one_to_one(self):
+        home = SignInView(self.driver).create_user()
+
+        home.just_fyi('Start new chat with public key and check user profile from 1-1 header > options')
+        chat = home.add_contact(ens_user_ropsten['public_key'])
+        chat.chat_options.click_until_presence_of_element(chat.view_profile_button)
+        chat.view_profile_button.click()
+        for element in (chat.profile_block_contact, chat.remove_from_contacts, chat.profile_send_message):
+            if not element.is_element_displayed():
+                self.errors.append('Expected %s is not visible' % element.locator)
+        chat.get_back_to_home_view()
+
+        home.just_fyi('Start new chat with ENS and check that ENS is resolved')
+        ens = ens_user_ropsten['ens']
+        home.add_contact(ens, add_in_contacts=False)
+        if not chat.element_by_text("@" + ens).is_element_displayed():
             self.driver.fail('Wrong user is resolved from username when starting 1-1 chat.')
+
+        home.just_fyi('Mention user by ENS in 1-1 chat')
+        message = '@%s hey!' % ens
+        chat.send_message(message)
+        chat.chat_element_by_text(message).click()
+        if not chat.profile_block_contact.is_element_displayed():
+            self.errors.append('No redirect to user profile after tapping on message with mention (ENS) in 1-1 chat')
+
+        home.just_fyi('Set nickname and mention user by nickname in 1-1 chat')
+        russian_nickname = 'МОЙ дорогой ДРУх'
+        chat.set_nickname(russian_nickname)
+        chat.back_button.click()
+        chat.select_mention_from_suggestion_list(russian_nickname + ' @' + ens)
+        chat.chat_element_by_text('%s hey!' % russian_nickname).click()
+        if not chat.profile_block_contact.is_element_displayed():
+            self.errors.append('No redirect to user profile after tapping on message with mention (nickname) in 1-1 chat')
+        self.errors.verify_no_errors()
 
     @marks.testrail_id(5326)
     @marks.critical
@@ -767,10 +793,9 @@ class TestMessagesOneToOneChatSingle(SingleDeviceTestCase):
             self.errors.append('Offline status is not shown in a public chat')
         self.errors.verify_no_errors()
 
-
     @marks.testrail_id(6298)
     @marks.medium
-    def test_can_scan_qr_with_chat_key_from_new_contact_view(self):
+    def test_can_scan_qr_with_chat_key_from_home_start_chat(self):
         sign_in_view = SignInView(self.driver)
         home_view = sign_in_view.recover_access(basic_user['passphrase'])
         profile = home_view.profile_button.click()
@@ -827,12 +852,11 @@ class TestMessagesOneToOneChatSingle(SingleDeviceTestCase):
         for key in url_data:
             home_view.plus_button.click_until_presence_of_element(home_view.start_new_chat_button)
             contact_view = home_view.start_new_chat_button.click()
-            sign_in_view.just_fyi('Checking %s case' % key)
+            sign_in_view.just_fyi('Checking scanning qr for "%s" case' % key)
             contact_view.scan_contact_code_button.click()
             if contact_view.allow_button.is_element_displayed():
                 contact_view.allow_button.click()
-            contact_view.enter_qr_edit_box.set_value(url_data[key]['url'])
-            contact_view.ok_button.click()
+            contact_view.enter_qr_edit_box.scan_qr(url_data[key]['url'])
             from views.chat_view import ChatView
             chat_view = ChatView(self.driver)
             if url_data[key].get('error'):
@@ -841,11 +865,10 @@ class TestMessagesOneToOneChatSingle(SingleDeviceTestCase):
                 chat_view.ok_button.click()
             if url_data[key].get('username'):
                 if not chat_view.chat_message_input.is_element_displayed():
-                    self.errors.append('In %s case chat input is not found after scanning' % key)
+                    self.errors.append('In "%s" case chat input is not found after scanning, so no redirect to 1-1' % key)
                 if not chat_view.element_by_text(url_data[key]['username']).is_element_displayed():
-                    self.errors.append('In %s case username not found after scanning' % key)
+                    self.errors.append('In "%s" case "%s" not found after scanning' % (key, url_data[key]['username']))
                 chat_view.back_button.click()
-
         self.errors.verify_no_errors()
 
     @marks.testrail_id(6322)
@@ -920,8 +943,7 @@ class TestMessagesOneToOneChatSingle(SingleDeviceTestCase):
                 home_view.universal_qr_scanner_button.click()
             if home_view.allow_button.is_element_displayed():
                 home_view.allow_button.click()
-            home_view.enter_qr_edit_box.set_value(url_data[key]['url'])
-            home_view.ok_button.click()
+            home_view.enter_qr_edit_box.scan_qr(url_data[key]['url'])
             from views.chat_view import ChatView
             chat_view = ChatView(self.driver)
             if url_data[key].get('error'):
