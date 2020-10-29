@@ -1274,7 +1274,7 @@
                 (:chat :group-chat-profile) (reset-current-chat % (get db :inactive-chat-id))
                 :multiaccounts (keycard/multiaccounts-screen-did-load %)
                 (:wallet-stack :wallet) (wallet.events/wallet-will-focus %)
-                (:my-profile :profile-stack)
+                (:status :status-stack)
                 (reset-current-profile-chat % (get-in % [:db :multiaccount :public-key]))
                 :profile
                 (reset-current-profile-chat % (get-in % [:db :contacts/identity]))
@@ -1289,7 +1289,7 @@
                 :chat
                 (reset-current-chat % (get db :inactive-chat-id))
 
-                (:my-profile :profile-stack)
+                (:status :status-stack)
                 (reset-current-profile-chat % (get-in % [:db :multiaccount :public-key]))
 
                 :profile

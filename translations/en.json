@@ -1314,6 +1314,7 @@
     "cant-open-public-chat": "Can't open public chat",
     "invalid-public-chat-topic": "Invalid public chat topic",
     "now": "Now",
-    "statuses-my-profile-descr": "Status updates are messages you publish to your profile. They can be viewed by anyone visiting your profile inside Status",
+    "statuses-my-status-descr": "Share what’s on your mind. Anyone visiting your profile will be able to see your status. People who add you as their contact will receive your updates on their timeline",
+    "statuses-descr": "Share what’s on your mind and stay updated with your contacts",
     "new-status": "New status"
 }

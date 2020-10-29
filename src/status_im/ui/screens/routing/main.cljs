@@ -25,7 +25,8 @@
             [status-im.ui.screens.profile.contact.views :as contact]
             [status-im.ui.screens.notifications-settings.views :as notifications-settings]
             [status-im.ui.screens.wallet.send.views :as wallet]
-            [status-im.ui.screens.profile.my-status.views :as my-status]))
+            [status-im.ui.screens.status.new.views :as status.new]
+            [status-im.ui.screens.routing.status-stack :as status-stack]))
 
 (defonce main-stack (navigation/create-stack))
 (defonce bottom-tabs (navigation/create-bottom-tabs))
@@ -47,7 +48,10 @@
      :component wallet-stack/wallet-stack}
     {:name      :profile-stack
      :insets    {:top false}
-     :component profile-stack/profile-stack}]])
+     :component profile-stack/profile-stack}
+    {:name      :status-stack
+     :insets    {:top false}
+     :component status-stack/status-stack}]])
 
 (views/defview get-main-component [_]
   (views/letsubs [logged-in? [:multiaccount/logged-in?]]
@@ -140,7 +144,7 @@
        {:name       :my-status
         :transition :presentation-ios
         :insets     {:bottom true}
-        :component  my-status/my-status}
+        :component  status.new/my-status}
        {:name       :profile
         :transition :presentation-ios
         :insets     {:bottom true}

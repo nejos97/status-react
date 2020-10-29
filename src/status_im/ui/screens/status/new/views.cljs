@@ -1,4 +1,4 @@
-(ns status-im.ui.screens.profile.my-status.views
+(ns status-im.ui.screens.status.new.views
   (:require-macros [status-im.utils.views :refer [defview letsubs]])
   (:require [status-im.ui.components.keyboard-avoid-presentation :as kb-presentation]
             [status-im.ui.components.react :as react]
@@ -12,7 +12,7 @@
             [clojure.string :as string]
             [status-im.ui.components.icons.vector-icons :as icons]
             [quo.components.animated.pressable :as pressable]
-            [status-im.ui.screens.profile.status :as my-status.messages]))
+            [status-im.ui.screens.status.views :as status.views]))
 
 (defn take-picture []
   (react/show-image-picker-camera #(re-frame/dispatch [:chat.ui/image-captured (.-path %)]) {}))
@@ -56,7 +56,7 @@
   (letsubs [{:keys [uri]} [:chats/sending-image]]
     (when uri
       [react/view {:margin-horizontal 16 :margin-bottom 16}
-       [my-status.messages/message-content-image uri true]])))
+       [status.views/message-content-image uri true]])))
 
 (defn my-status []
   (let [images-opened (reagent/atom false)

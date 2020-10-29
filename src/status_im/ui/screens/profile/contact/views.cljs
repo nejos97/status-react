@@ -20,7 +20,7 @@
             [clojure.string :as string]
             [quo.components.list.item :as list-item]
             [status-im.ui.components.list.views :as list]
-            [status-im.ui.screens.profile.status :as my-status]
+            [status-im.ui.screens.status.views :as status.views]
             [status-im.ui.screens.chat.views :as chat.views])
   (:require-macros [status-im.utils.views :as views]))
 
@@ -166,11 +166,11 @@
          (i18n/label :t/status-updates-descr)]]]
       [list/flat-list
        {:key-fn                    #(or (:message-id %) (:value %))
-        :ref                       #(reset! my-status/messages-list-ref %)
+        :ref                       #(reset! status.views/messages-list-ref %)
         :on-viewable-items-changed chat.views/on-viewable-items-changed
         :on-end-reached            #(re-frame/dispatch [:chat.ui/load-more-messages])
         :on-scroll-to-index-failed #()                      ;;don't remove this
-        :render-fn                 my-status/render-message
+        :render-fn                 status.views/render-message
         :data                      messages}])))
 
 (views/defview profile []
